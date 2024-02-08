@@ -97,21 +97,12 @@ public class BinarySearchTree implements Tree {
                 return root.left;
 
             // Nó com dois filhos: obtém o sucessor em ordem (menor nó na subárvore direita)
-            root.valor = minValue(root.right);
+            root.valor = minimo();
 
             // Remove o sucessor em ordem
             root.right = removeRecursivo(root.right, root.valor);
         }
         return root;
-    }
-
-    private int minValue(Node root) {
-        int minv = root.valor;
-        while (root.left != null) {
-            minv = root.left.valor;
-            root = root.left;
-        }
-        return minv;
     }
 
     // Implementação da travessia em pré-ordem
