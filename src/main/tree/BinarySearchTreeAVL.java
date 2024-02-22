@@ -5,23 +5,123 @@ import java.util.List;
 
 import estrut.Tree;
 
-public class BinarySearchTree implements Tree {
-    
-    private Node root;
+public class BinarySearchTreeAVL {
 
     // Classe interna para representar um nó da árvore
     private class Node {
         int valor;
+        int altura;
         Node left, right;
 
         public Node(int item) {
             valor = item;
+            altura = 1;
             left = right = null;
         }
     }
 
-    // Implementação da busca de elemento
-    @Override
+    private Node root;
+
+    // Restante do código...
+
+    // Função auxiliar para obter a altura de um nó
+    private int altura(Node node) {
+        if (node == null) {
+            return 0;
+        }
+        return node.altura;
+    }
+
+    // Função auxiliar para atualizar a altura de um nó
+    private void atualizarAltura(Node node) {
+        node.altura = Math.max(altura(node.left), altura(node.right)) + 1;
+    }
+
+    // Função auxiliar para realizar rotação à direita em torno do nó 'y'
+    private Node rotacaoDireita(Node y) {
+        Node x = y.left;
+        Node T2 = x.right;
+
+        // Realiza a rotação
+        x.right = y;
+        y.left = T2;
+
+        // Atualiza as alturas
+        atualizarAltura(y);
+        atualizarAltura(x);
+
+        // Retorna o novo nó raiz
+        return x;
+    }
+
+    // Função auxiliar para realizar rotação à esquerda em torno do nó 'x'
+    private Node rotacaoEsquerda(Node x) {
+        Node y = x.right;
+        Node T2 = y.left;
+
+        // Realiza a rotação
+        y.left = x;
+        x.right = T2;
+
+        // Atualiza as alturas
+        atualizarAltura(x);
+        atualizarAltura(y);
+
+        // Retorna o novo nó raiz
+        return y;
+    }
+
+    // Função para inserir um valor na árvore AVL
+    public void insereElemento(int valor) {
+        root = insereElementoRecursivo(root, valor);
+    }
+
+    private Node insereElementoRecursivo(Node node, int valor) {
+        // Realiza a inserção como em uma BST normal
+        if (node == null) {
+            return new Node(valor);
+        }
+
+        if (valor < node.valor) {
+            node.left = insereElementoRecursivo(node.left, valor);
+        } else if (valor > node.valor) {
+            node.right = insereElementoRecursivo(node.right, valor);
+        } else {
+            // Duplicados não são permitidos em uma BST
+            return node;
+        }
+
+        // Atualiza a altura do nó atual
+        atualizarAltura(node);
+
+        // Verifica o balanceamento e realiza as rotações, se necessário
+        int balanceamento = altura(node.left) - altura(node.right);
+
+        // Caso de desbalanceamento à esquerda
+        if (balanceamento > 1) {
+            // Rotação simples à direita ou rotação dupla à esquerda-direita
+            if (valor < node.left.valor) {
+                return rotacaoDireita(node);
+            } else {
+                node.left = rotacaoEsquerda(node.left);
+                return rotacaoDireita(node);
+            }
+        }
+        // Caso de desbalanceamento à direita
+        if (balanceamento < -1) {
+            // Rotação simples à esquerda ou rotação dupla à direita-esquerda
+            if (valor > node.right.valor) {
+                return rotacaoEsquerda(node);
+            } else {
+                node.right = rotacaoDireita(node.right);
+                return rotacaoEsquerda(node);
+            }
+        }
+        return node;
+    }
+    
+// Implementação da busca de elemento
+    
     public boolean buscaElemento(int valor) {
         return buscaElementoRecursivo(root, valor);
     }
@@ -37,7 +137,6 @@ public class BinarySearchTree implements Tree {
     }
 
     // Implementação do mínimo
-    @Override
     public int minimo() {
         if (root == null)
             throw new IllegalStateException("Árvore vazia");
@@ -48,7 +147,6 @@ public class BinarySearchTree implements Tree {
     }
 
     // Implementação do máximo
-    @Override
     public int maximo() {
         if (root == null)
             throw new IllegalStateException("Árvore vazia");
@@ -57,27 +155,8 @@ public class BinarySearchTree implements Tree {
             current = current.right;
         return current.valor;
     }
-
-    // Implementação da inserção de elemento
-    @Override
-    public void insereElemento(int valor) {
-        root = insereElementoRecursivo(root, valor);
-    }
-
-    private Node insereElementoRecursivo(Node root, int valor) {
-        if (root == null) {
-            root = new Node(valor);
-            return root;
-        }
-        if (valor < root.valor)
-            root.left = insereElementoRecursivo(root.left, valor);
-        else if (valor > root.valor)
-            root.right = insereElementoRecursivo(root.right, valor);
-        return root;
-    }
-
+    
     // Implementação da remoção
-    @Override
     public void remove(int valor) {
         root = removeRecursivo(root, valor);
     }
@@ -106,7 +185,6 @@ public class BinarySearchTree implements Tree {
     }
 
     // Implementação da travessia em pré-ordem
-    @Override
     public int[] preOrdem() {
         List<Integer> resultado = new ArrayList<>();
         preOrdemRecursivo(root, resultado);
@@ -122,7 +200,6 @@ public class BinarySearchTree implements Tree {
     }
 
     // Implementação da travessia em ordem
-    @Override
     public int[] emOrdem() {
         List<Integer> resultado = new ArrayList<>();
         emOrdemRecursivo(root, resultado);
@@ -138,7 +215,6 @@ public class BinarySearchTree implements Tree {
     }
 
     // Implementação da travessia em pós-ordem
-    @Override
     public int[] posOrdem() {
         List<Integer> resultado = new ArrayList<>();
         posOrdemRecursivo(root, resultado);
